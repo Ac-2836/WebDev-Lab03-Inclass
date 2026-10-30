@@ -1,5 +1,6 @@
 import { Fragment, useId, useState } from 'react';
 import { SkillBadge } from './SkillBadge.jsx';
+import styles from './DeveloperCard.module.css';
 
 const DEFAULT_AVATAR =
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=240';
@@ -25,10 +26,11 @@ export function DeveloperCard({
   const showAvatar = avatarUrl.startsWith('https://') && !isAvatarBroken;
 
   return (
-    <article aria-labelledby={headingId}>
-      <header>
+    <article className={styles.card} aria-labelledby={headingId}>
+      <header className={styles.header}>
         {showAvatar ? (
           <img
+            className={styles.avatar}
             src={avatarUrl}
             alt={fullName}
             width='64'
@@ -36,16 +38,20 @@ export function DeveloperCard({
             onError={() => setIsAvatarBroken(true)}
           />
         ) : (
-          <span role='img' aria-label={fullName}>
+          <span
+            className={`${styles.avatar} ${styles.initials}`}
+            role='img'
+            aria-label={fullName}
+          >
             {getInitials(fullName)}
           </span>
         )}
-        <hgroup>
+        <hgroup className={styles.title}>
           <h2 id={headingId}>{fullName}</h2>
           <p>{role}</p>
         </hgroup>
       </header>
-      <dl>
+      <dl className={styles.metrics}>
         {Object.entries(metrics).map(([metric, value]) => (
           <Fragment key={metric}>
             <dt>{metric}</dt>
@@ -53,7 +59,7 @@ export function DeveloperCard({
           </Fragment>
         ))}
       </dl>
-      <ul aria-label='Engineered Skills'>
+      <ul className={styles.skills} aria-label='Engineered Skills'>
         {skills.map((skill) => (
           <SkillBadge key={skill.id} name={skill.name} tier={skill.tier} />
         ))}
