@@ -52,3 +52,21 @@
     grid-column: 1 / -1;
   }
 }
+
+.controls {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.controls input,
+.controls select {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.375rem 0.5rem;
+  font: inherit;
+  color: var(--text-main);
+  border: 1px solid var(--text-muted);
+  border-radius: 8px;
+}
