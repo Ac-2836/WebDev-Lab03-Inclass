@@ -47,3 +47,35 @@ Copy this template for each failure (number entries 01, 02, 03, ...):
   `favicon` entry in `performance.getEntriesByType('resource')`;
   `npm run build` passes. `evidence/0.1-console-after-fix.txt` (captured
   log, not a DevTools panel screenshot).
+
+## AI Failure 02: SUCCESS panel taller than the 220px skeleton (layout shift)
+
+- **AI Prompt:** Task 3.2 Skeleton and retry alert: 220px `aria-busy`
+  skeleton (0.00 CLS); `<section role="alert">` + Retry; no
+  `window.alert()`.
+- **AI Generated Code:** `PubgMatchTelemetry.module.css` gave the skeleton a
+  fixed `height: 220px`, but `.panel` only had `min-height: 220px` with
+  `padding: var(--gap)` and `.panel h3 { margin: 0 0 0.75rem; }`. The
+  SUCCESS view (heading + 6 `dt`/`dd` rows) rendered 236px tall, so every
+  LOADING -> SUCCESS transition grew the panel by 16px.
+- **Risk:** Content below the radar is pushed down on each load, breaking the
+  slide's 0.00 CLS contract for the skeleton. The measured CLS was 0 only
+  because nothing sits below Exercise 3 yet; any later sibling (or the live
+  defense polling mutation) would shift.
+- **Detection Method / DevTools Proof:** Found during Task 3.2 verification
+  (code not yet committed). Playwright on Chrome with CDP throttling
+  (2000 ms latency, 50 KB/s) measured the panel with
+  `getBoundingClientRect()`: skeleton 220px, ERROR 220px, SUCCESS 236px at
+  both 375px and 1440px. Evidence: `evidence/3.2-verify.json` (`note`
+  records the first-run 236px reading; captured data, not a DevTools panel
+  screenshot).
+- **Engineering Refactor / Manual Fix:** Tightened the panel so every state
+  fits 220px: `.panel` padding `0.75rem var(--gap)`, `.panel h3`
+  `margin: 0 0 0.25rem; font-size: 1.125rem;`, `.stats` gap
+  `0.125rem 1rem`, plus a one-line comment stating the 220px invariant.
+  Shipped in the Task 3.2 commit `3aa6512`.
+- **Verification Evidence:** Re-ran the same throttled Playwright script:
+  skeleton, SUCCESS and ERROR are all 220px at 375px and 1440px, and
+  `PerformanceObserver` (`layout-shift`) reports CLS 0 across LOADING ->
+  SUCCESS -> ERROR -> Retry -> SUCCESS. `evidence/3.2-verify.json`,
+  `evidence/3.2-skeleton-1440px.png`, `evidence/3.2-after-retry-375px.png`.
