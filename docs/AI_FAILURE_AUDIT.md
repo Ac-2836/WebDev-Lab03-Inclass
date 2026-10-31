@@ -79,3 +79,34 @@ Copy this template for each failure (number entries 01, 02, 03, ...):
   `PerformanceObserver` (`layout-shift`) reports CLS 0 across LOADING ->
   SUCCESS -> ERROR -> Retry -> SUCCESS. `evidence/3.2-verify.json`,
   `evidence/3.2-skeleton-1440px.png`, `evidence/3.2-after-retry-375px.png`.
+
+## AI Failure 03: Min IQ input cannot be cleared (forced "0", shows "0180")
+
+- **AI Prompt:** Task 2.2 Search, filter, sort: derived during render, zero
+  `useEffect`; `<label htmlFor>` + `useId()`; `valueAsNumber`; `toSorted()`.
+- **AI Generated Code:** `ScientistDirectory.jsx` handled the Min IQ input
+  with `setMinIq(Number.isNaN(value) ? 0 : value)` and bound
+  `value={minIq}`. An empty field gives `valueAsNumber === NaN`, so state
+  becomes `0` and React writes `0` back into the controlled input. The field
+  can never be empty, and typing after clearing appends to the forced zero.
+- **Risk:** Keyboard and mouse users cannot clear the field to type a new
+  threshold; the input shows "0180" while the filter uses 180, so what is on
+  screen no longer matches the applied value. Screen readers announce the
+  stray leading zero. Breaks the "type-safe numeric filtering" intent of the
+  slide contract.
+- **Detection Method / DevTools Proof:** Found during the In-class re-audit.
+  Playwright keyboard on Chrome 156: focus Min IQ (160), Ctrl+A, Backspace,
+  then type 1, 8, 0. `inputValue` sequence: "0", "01", "018", "0180".
+  Evidence: `evidence/2.2-minIq-before-fix.json`,
+  `evidence/2.2-minIq-0180-before-fix.png` (real screenshot of the form).
+- **Engineering Refactor / Manual Fix:** `handleMinIq` now stores `''` when
+  `valueAsNumber` is `NaN`, so the controlled input can stay empty; the
+  render derives `minIqValue = minIq === '' ? 0 : minIq` for the filter, so
+  an empty field still means "no minimum". `valueAsNumber` is still the only
+  parser and no `useEffect` was added.
+- **Verification Evidence:** Same Playwright sequence (Ctrl+A, Backspace,
+  type 2, 0, 0): `inputValue` "", "2", "20", "200"; status "Found 6
+  pioneers" while empty and "Found 3 pioneers" at 200 (Goethe, Einstein,
+  Sidis); each keystroke still causes exactly 1 React commit; console has 0
+  errors and 0 warnings; `npm run build` passes.
+  `evidence/2.2-minIq-after-fix.json`, `evidence/2.2-minIq-200-after-fix.png`.
