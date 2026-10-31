@@ -11,6 +11,7 @@ const SQUAD_OPTIONS = [
 export function PubgMatchTelemetry({ defaultSquadId = 'te' }) {
   const [squadId, setSquadId] = useState(defaultSquadId);
   const [view, setView] = useState({ status: 'IDLE', data: null, error: null });
+  const [retryTick, setRetryTick] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -23,7 +24,7 @@ export function PubgMatchTelemetry({ defaultSquadId = 'te' }) {
         setView({ status: 'ERROR', data: null, error: err.message });
       });
     return () => controller.abort();
-  }, [squadId]);
+  }, [squadId, retryTick]);
 
   return (
     <section className={styles.radar} aria-label='PUBG VN Live Telemetry'>
@@ -39,23 +40,32 @@ export function PubgMatchTelemetry({ defaultSquadId = 'te' }) {
           </button>
         ))}
       </nav>
-      <TelemetryView view={view} />
+      <TelemetryView
+        view={view}
+        onRetry={() => setRetryTick((tick) => tick + 1)}
+      />
     </section>
   );
 }
 
-function TelemetryView({ view }) {
+function TelemetryView({ view, onRetry }) {
   if (view.status === 'IDLE' || view.status === 'LOADING') {
     return (
-      <section className={styles.panel} aria-busy='true'>
+      <section
+        className={`${styles.panel} ${styles.skeleton}`}
+        aria-busy='true'
+      >
         Syncing KRAFTON Radar...
       </section>
     );
   }
   if (view.status === 'ERROR') {
     return (
-      <section className={styles.panel}>
+      <section className={`${styles.panel} ${styles.alert}`} role='alert'>
         <p>Blue-Zone Link Lost: {view.error}</p>
+        <button type='button' className={styles.retry} onClick={onRetry}>
+          Reconnect Satellite (Retry)
+        </button>
       </section>
     );
   }
