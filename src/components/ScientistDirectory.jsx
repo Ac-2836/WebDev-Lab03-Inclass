@@ -22,13 +22,15 @@ export function ScientistDirectory({ initialData = SMART_PEOPLE }) {
 
   // Derived during render: no extra state, no useEffect, one render pass.
   const needle = query.trim().toLowerCase();
+  const minIqValue = minIq === '' ? 0 : minIq;
   const visible = people
-    .filter((p) => p.name.toLowerCase().includes(needle) && p.iq >= minIq)
+    .filter((p) => p.name.toLowerCase().includes(needle) && p.iq >= minIqValue)
     .toSorted((a, b) => (sortBy === 'iq-desc' ? b.iq - a.iq : a.age - b.age));
 
   const handleMinIq = (e) => {
     const value = e.target.valueAsNumber;
-    setMinIq(Number.isNaN(value) ? 0 : value);
+    // Keep '' so the field can be cleared; an empty field filters as 0.
+    setMinIq(Number.isNaN(value) ? '' : value);
   };
 
   const handleDelete = (e, id) => {
