@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import styles from './ScientistDirectory.module.css';
 
 export const SMART_PEOPLE = [
@@ -14,7 +14,8 @@ export function ScientistDirectory({ initialData = SMART_PEOPLE }) {
   const queryId = useId();
   const minIqId = useId();
   const sortId = useId();
-  const [people] = useState(initialData);
+  const resetRef = useRef(null);
+  const [people, setPeople] = useState(initialData);
   const [query, setQuery] = useState('');
   const [minIq, setMinIq] = useState(160);
   const [sortBy, setSortBy] = useState('iq-desc');
@@ -28,6 +29,14 @@ export function ScientistDirectory({ initialData = SMART_PEOPLE }) {
   const handleMinIq = (e) => {
     const value = e.target.valueAsNumber;
     setMinIq(Number.isNaN(value) ? 0 : value);
+  };
+
+  const handleDelete = (e, id) => {
+    // Move focus to a surviving row before this button unmounts.
+    const row = e.currentTarget.closest('li');
+    const sibling = row.nextElementSibling ?? row.previousElementSibling;
+    (sibling?.querySelector('button') ?? resetRef.current).focus();
+    setPeople((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (
@@ -62,15 +71,34 @@ export function ScientistDirectory({ initialData = SMART_PEOPLE }) {
           <option value='age-asc'>Age (young to old)</option>
         </select>
       </form>
+      <output className={styles.status} role='status' aria-live='polite'>
+        Found {visible.length} pioneers
+      </output>
       <ul className={styles.list}>
         {visible.map((p) => (
           <li key={p.id} className={styles.row}>
             <span className={styles.name}>{p.name}</span>
             <span>IQ {p.iq}</span>
             <span>Age {p.age}</span>
+            <button
+              type='button'
+              className={styles.delete}
+              aria-label={`Delete ${p.name}`}
+              onClick={(e) => handleDelete(e, p.id)}
+            >
+              Delete
+            </button>
           </li>
         ))}
       </ul>
+      <button
+        ref={resetRef}
+        type='button'
+        className={styles.reset}
+        onClick={() => setPeople(initialData)}
+      >
+        Reset
+      </button>
     </section>
   );
 }
