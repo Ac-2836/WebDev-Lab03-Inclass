@@ -3,6 +3,7 @@ import { DeveloperCard } from './components/DeveloperCard.jsx';
 import { ScientistDirectory } from './components/ScientistDirectory.jsx';
 import { PubgMatchTelemetry } from './components/PubgMatchTelemetry.jsx';
 import { DrumMachine } from './homeworks/DrumMachine/DrumMachine.jsx';
+import { GrandPiano88 } from './homeworks/GrandPiano88/GrandPiano88.jsx';
 import styles from './App.module.css';
 
 const MY_AVATAR_URL =
@@ -35,6 +36,11 @@ const TABS = [
     id: 'hw1',
     label: 'HW 1 · Drum Kit',
     render: () => <DrumMachine />,
+  },
+  {
+    id: 'hw2',
+    label: 'HW 2 · Grand Piano',
+    render: () => <GrandPiano88 />,
   },
 ];
 
