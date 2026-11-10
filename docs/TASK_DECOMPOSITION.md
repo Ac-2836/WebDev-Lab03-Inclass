@@ -6,7 +6,7 @@ verified commit. Tick a task only after I have verified it.
 **Level:** Core = must master and implement myself; Awareness = understand
 for debugging/lookup (Lab 03 3-tier taxonomy). **Commit** messages are used
 verbatim. Task IDs: `0.x`-`3.x` In-class, `H1.x` / `H2.x` / `H3.x`
-Homework 1-3.
+Homework 1-3, `B.x` Bonus (part of the homework).
 
 ## In-class Sprints
 
@@ -60,3 +60,13 @@ Homework 1-3.
 | - [ ] H3.7 Virtual kill feed | Awareness | hw3 | Windowed list: only visible rows + overscan in the DOM; labelled scroll region | `feat(hw3): add virtualized kill feed` | `src/homeworks/KraftonPubgVnArena/KillFeed.jsx` |
 | - [ ] H3.8 Accessible arena theme | Core | hw3 | CSS Module; contrast >= 4.5:1; `:focus-visible`; zero horizontal scroll at 375px | `style(hw3): add accessible responsive arena theme` | `src/homeworks/KraftonPubgVnArena/KraftonPubgVnArena.module.css` |
 | - [ ] H3.9 Audit and AI failures | Core | hw3 | Lighthouse Accessibility 100; >= 3 verified HW 3 entries in `AI_FAILURE_AUDIT.md` | `docs(hw3): record arena audit and ai failures` | `docs/VERIFICATION.md` (HW 3 section), `docs/AI_FAILURE_AUDIT.md` |
+
+## Bonus: 'Hẹn Hò Nhưng Không Yêu' State Machine
+
+| Task | Level | Scope | Constraint | Commit | Deliverables |
+|---|---|---|---|---|---|
+| - [ ] B.1 Relationship FSM | Core | fsm | Slide `RelationshipPhase`; pure reducer with valid transitions only; no boolean flags; Bonus tab | `feat(fsm): model HenHoKhongYeu state machine` | `src/homeworks/SituationshipAnalyzer/situationship-machine.js`, `src/homeworks/SituationshipAnalyzer/SituationshipAnalyzer.jsx` (shell), `src/App.jsx` |
+| - [ ] B.2 Immutable effort log | Core | bonus | Slide `EffortSignal`; append-only `[...prev, signal]` with `crypto.randomUUID()`; `useId` labelled inputs | `feat(bonus): add immutable effort signal log` | effort controls in `src/homeworks/SituationshipAnalyzer/SituationshipAnalyzer.jsx` |
+| - [ ] B.3 Red-flag meter and ghosting | Core | ui | `emScore`, `rivalScore`, red flag derived in render; red flag in `<output role="status" aria-live="polite">`; 5 s reply timer with `AbortController` + `clearTimeout` cleanup | `feat(ui): add derived red-flag meter & ghosting cleanup` | meter + ghosting effect in `src/homeworks/SituationshipAnalyzer/` |
+| - [ ] B.4 Accessible theme | Core | bonus | CSS Module; contrast >= 4.5:1; `:focus-visible`; zero horizontal scroll at 375px | `style(bonus): add accessible responsive analyzer theme` | `src/homeworks/SituationshipAnalyzer/SituationshipAnalyzer.module.css` |
+| - [ ] B.5 Verification | Core | bonus | Timer cleanup on 'Dừng Lại' / actor switch / unmount (no late state update); Lighthouse Accessibility 100 | `docs(bonus): record analyzer verification` | `docs/VERIFICATION.md` (Bonus section; screenshots stay in git-ignored `evidence/`) |

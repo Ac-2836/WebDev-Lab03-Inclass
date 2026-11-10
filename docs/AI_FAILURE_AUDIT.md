@@ -1,11 +1,12 @@
 # AI Failure Audit
 
 This report records failures observed while implementing and verifying
-Lab 03 (In-class sprints and Homework 1-3). Entries 01-03 belong to the
-In-class sprints; homework entries continue the same numbering and name the
-homework in the title. Each entry is logged before the AI is asked to fix
-the subtask. Screenshots listed as verification evidence show the corrected
-UI; they are not presented as screenshots of the original failure.
+Lab 03 (In-class sprints, Homework 1-3 and the Bonus exercise). Entries
+01-03 belong to the In-class sprints; homework and Bonus entries continue
+the same numbering and name the part in the title. Each entry is logged
+before the AI is asked to fix the subtask. Screenshots listed as
+verification evidence show the corrected UI; they are not presented as
+screenshots of the original failure.
 
 <!--
 Copy this template for each failure (number entries 01, 02, 03, ...;

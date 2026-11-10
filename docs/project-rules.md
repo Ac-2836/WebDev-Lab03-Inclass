@@ -1,6 +1,6 @@
 # project-rules.md
 
-My working contract with AI for Lab 03 (In-class sprints and homeworks, one repo). The AI must read and follow this file in full before starting any task. Sections 1-4 are my standing way of working with AI (copied from the master rules); section 5 holds the Lab 03 global rules; section 6 holds the rules specific to the In-class sprints; section 7 holds the rules shared by all homeworks; sections 8-10 hold the rules specific to Homework 1-3.
+My working contract with AI for Lab 03 (In-class sprints and homeworks, one repo). The AI must read and follow this file in full before starting any task. Sections 1-4 are my standing way of working with AI (copied from the master rules); section 5 holds the Lab 03 global rules; section 6 holds the rules specific to the In-class sprints; section 7 holds the rules shared by all homeworks; sections 8-10 hold the rules specific to Homework 1-3; section 11 holds the rules for the Bonus exercise, which is part of the homework.
 
 ---
 
@@ -245,15 +245,17 @@ Commit messages for each sprint are mandated by the slides and used verbatim.
 
 ---
 
-## 7. Homework Common Rules (apply to sections 8-10)
+## 7. Homework Common Rules (apply to sections 8-11)
 
 - Deadline window: 1 week per homework. Same repo as the In-class sprints;
   the submitted In-class state is frozen at tag `inclass-submission`.
 - Each homework lives in its own folder under `src/homeworks/`
-  (`DrumMachine/`, `GrandPiano88/`, `KraftonPubgVnArena/`) and is mounted as
+  (`DrumMachine/`, `GrandPiano88/`, `KraftonPubgVnArena/`,
+  `SituationshipAnalyzer/` for the Bonus) and is mounted as
   its own tab in `App.jsx`. Homework code never edits In-class components.
-- Commit scope is the homework id (`hw1`, `hw2`, `hw3`); the slides mandate
-  no exact messages for homeworks, so `TASK_DECOMPOSITION.md` is the source.
+- Commit scope is the homework id (`hw1`, `hw2`, `hw3`, `bonus`). The slides
+  mandate exact messages only for two Bonus commits (used verbatim); for the
+  rest `TASK_DECOMPOSITION.md` is the source.
 - No new runtime dependencies. Audio is synthesized with the Web Audio API
   (no downloaded sample files); data is local mock data.
 - Every homework logs its own AI defects in `docs/AI_FAILURE_AUDIT.md`,
@@ -389,3 +391,51 @@ export function usePubgAirdropTimer(targetEpochMs, serverOffsetMs = 0);
 - Claim results and phase changes are announced through `role="status"`;
   failures through `role="alert"`. No `window.alert()`.
 - `docs/AI_FAILURE_AUDIT.md` gains at least 3 verified HW 3 entries.
+
+---
+
+## 11. Bonus Rules: 'Hẹn Hò Nhưng Không Yêu' State Machine
+
+### Scope
+
+- `<SituationshipAnalyzer />` in `src/homeworks/SituationshipAnalyzer/`,
+  an applied FSM exercise inspired by Wendy Thảo's song: replace
+  "situationship" boolean soup and model asymmetric effort.
+- Follow the slide contracts; do not change them without my approval:
+
+```ts
+export type RelationshipPhase =
+  | 'FRIENDS'
+  | 'DATING_NO_LOVE'    // 'Hẹn hò nhưng không yêu'
+  | 'OFFICIAL_LOVE'     // Verified mutual commitment
+  | 'GHOSTED_EXIT';     // Unmounted & memory freed
+export interface EffortSignal {
+  readonly id: string;
+  readonly actor: 'EM' | 'AI_DO';
+  readonly steps: number;
+  readonly multiplier: number;
+}
+```
+
+- Slide 31's bullet text names the phases differently
+  (`STRANGERS | DATING_NO_LOVE | COMMITTED | SELF_RESPECT_EXIT`) from its own
+  TypeScript contract above; the TypeScript contract (also used by the
+  Slide 32 reference component) is the source of truth.
+
+### Hard constraints
+
+- Boolean soup banned: no `isDating` / `isLoved` / `hasTitle` flags. The
+  phase is one `RelationshipPhase` value; transitions go through a pure
+  reducer (`useReducer`) that ignores events invalid for the current phase.
+- Asymmetric effort ('Em cố trăm lần chẳng bằng ai đó một phần'): signals
+  are appended immutably (`[...prev, signal]`, `crypto.randomUUID()` ids);
+  `emScore`, `rivalScore`, and the red-flag warning are derived during
+  render. Reference weights: Em 100 tries x 0.1, Ai đó 1 try x 50.
+  Zero `useEffect` for derived values.
+- 'Seen không rep' ghosting: sending a message in `DATING_NO_LOVE` starts a
+  5 s reply timer in `useEffect`; an ignored message moves to
+  `GHOSTED_EXIT`. Switching to 'Ai Đó', clicking 'Dừng Lại', or unmounting
+  aborts the pending wait (`AbortController`) and clears the timer.
+- Every signal input bound with `<label htmlFor>` + `useId()`; red-flag
+  warnings announced through `<output role="status" aria-live="polite">`.
+- 375px with zero horizontal scroll; contrast >= 4.5:1; focus visible.
