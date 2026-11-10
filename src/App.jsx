@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DeveloperCard } from './components/DeveloperCard.jsx';
 import { ScientistDirectory } from './components/ScientistDirectory.jsx';
 import { PubgMatchTelemetry } from './components/PubgMatchTelemetry.jsx';
+import { DrumMachine } from './homeworks/DrumMachine/DrumMachine.jsx';
 import styles from './App.module.css';
 
 const MY_AVATAR_URL =
@@ -29,6 +30,11 @@ const TABS = [
     id: 'ex3',
     label: 'Ex 3 · PUBG VN Telemetry',
     render: () => <PubgMatchTelemetry />,
+  },
+  {
+    id: 'hw1',
+    label: 'HW 1 · Drum Kit',
+    render: () => <DrumMachine />,
   },
 ];
 
