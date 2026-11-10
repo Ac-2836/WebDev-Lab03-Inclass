@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { PAD_MAP } from './drum-pads.js';
+import { useDrumKeyboard } from './useDrumKeyboard.js';
 
 const PADS = [...PAD_MAP.values()];
 const FLASH_MS = 150;
@@ -28,6 +29,8 @@ export function DrumMachine() {
       }, FLASH_MS),
     );
   };
+
+  useDrumKeyboard(PAD_MAP, triggerPad);
 
   return (
     <section aria-labelledby='drum-heading'>
