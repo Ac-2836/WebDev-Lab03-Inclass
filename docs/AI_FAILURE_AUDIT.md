@@ -114,3 +114,34 @@ homework entries add the part, e.g. "AI Failure 04 (HW 1): ..."):
   Sidis); each keystroke still causes exactly 1 React commit; console has 0
   errors and 0 warnings; `npm run build` passes.
   `evidence/2.2-minIq-after-fix.json`, `evidence/2.2-minIq-200-after-fix.png`.
+
+## AI Failure 04 (HW 1): Ctrl+A triggers the Kick pad and blocks Select All
+
+- **AI Prompt:** Task H1.3 Keyboard hook: slide contract
+  `useDrumKeyboard(padMap, onTriggerPad, isEnabled)`; `keydown` + `e.code`;
+  `e.repeat` guard; ignore INPUT/TEXTAREA/SELECT; cleanup.
+- **AI Generated Code:** `useDrumKeyboard.js` follows the slide handler:
+  after the `e.repeat` and text-field guards it looks up `padMap.get(e.code)`
+  and, for a pad, calls `e.preventDefault()` and `onTriggerPad(pad.id)`.
+  Nothing checks `e.ctrlKey`, `e.metaKey`, or `e.altKey`, so browser and OS
+  shortcuts that share a pad's physical key are treated as drum hits.
+- **Risk:** Ctrl+A (Select All), Ctrl+S, Ctrl+W, Alt+key accessibility and
+  assistive-technology shortcuts fire a drum hit and, because of
+  `preventDefault()`, the shortcut itself stops working (WCAG 2.1.4 Character
+  Key Shortcuts: shortcuts must not hijack modified keys). Screen reader and
+  keyboard-only users lose standard commands while the drum tab is open.
+- **Detection Method / DevTools Proof:** Found while verifying task H1.3.
+  Playwright on Chrome, focus on body, `Control+KeyA`: the window `keydown`
+  log shows `Ctrl+KeyA:prevented=true` and the "A Kick" pad reports
+  `aria-pressed="true"`. Evidence: `evidence/h1.3-ctrlA-before-fix.json`
+  (captured events, not a DevTools panel screenshot).
+- **Engineering Refactor / Manual Fix:** Added one guard in the `keydown`
+  handler of `useDrumKeyboard.js`, right after the `e.repeat` check:
+  `if (e.ctrlKey || e.metaKey || e.altKey) return;`. Shift is deliberately
+  allowed (Caps/Shift must not silence a pad). The hook signature is
+  unchanged. Shipped in the task H1.3 commit.
+- **Verification Evidence:** Same Playwright check after the fix:
+  `Control+KeyA`, `Control+KeyS`, `Alt+KeyW` and `Meta+KeyD` trigger no pad
+  and `defaultPrevented` is false; Select All still selects the page text;
+  plain `A` still hits Kick and `Shift+W` still hits Crash; `npm run build`
+  passes. `evidence/h1.3-verify.json`.
