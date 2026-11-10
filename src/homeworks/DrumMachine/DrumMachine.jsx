@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { createDrumAudio, MIN_DB } from './drum-audio.js';
 import { PAD_MAP } from './drum-pads.js';
+import styles from './DrumMachine.module.css';
 import { useDrumKeyboard } from './useDrumKeyboard.js';
 
 const PADS = [...PAD_MAP.values()];
@@ -51,9 +52,9 @@ export function DrumMachine() {
   useDrumKeyboard(PAD_MAP, triggerPad);
 
   return (
-    <section aria-labelledby='drum-heading'>
+    <section className={styles.drum} aria-labelledby='drum-heading'>
       <h2 id='drum-heading'>Production Studio Drum Kit</h2>
-      <ul aria-label='Drum pads'>
+      <ul className={styles.pads} aria-label='Drum pads'>
         {PADS.map((pad) => (
           <li key={pad.id}>
             <DrumPad
@@ -72,12 +73,12 @@ export function DrumMachine() {
 
 function HitLog({ hits }) {
   return (
-    <section aria-labelledby='hit-log-heading'>
+    <section className={styles.hitLog} aria-labelledby='hit-log-heading'>
       <h3 id='hit-log-heading'>Hit log</h3>
-      <output aria-live='polite' aria-atomic='false'>
+      <output className={styles.hits} aria-live='polite' aria-atomic='false'>
         {hits.length === 0 ? 'No hits yet.' : null}
         {hits.map((hit) => (
-          <span key={hit.id}>
+          <span key={hit.id} className={styles.hit}>
             #{hit.n} {hit.pad.label} ({hit.pad.keyHint}){' '}
           </span>
         ))}
@@ -105,11 +106,12 @@ function LevelMeter({ audio }) {
   }, [audio]);
 
   return (
-    <p>
-      <label htmlFor={meterId}>Output level (dBFS)</label>{' '}
+    <p className={styles.meterRow}>
+      <label htmlFor={meterId}>Output level (dBFS)</label>
       <meter
         id={meterId}
         ref={meterRef}
+        className={styles.meter}
         min={MIN_DB}
         max={0}
         low={-18}
@@ -139,12 +141,14 @@ function DrumPad({ pad, isActive, onTrigger }) {
   return (
     <button
       type='button'
+      className={styles.pad}
       aria-pressed={isActive}
       aria-keyshortcuts={pad.keyHint}
       onPointerDown={handlePointerDown}
       onKeyDown={handleKeyDown}
     >
-      <kbd>{pad.keyHint}</kbd> {pad.label}
+      <kbd className={styles.key}>{pad.keyHint}</kbd>
+      <span>{pad.label}</span>
     </button>
   );
 }

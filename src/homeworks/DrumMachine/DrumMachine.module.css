@@ -1,0 +1,121 @@
+.drum {
+  --panel-bg: #ffffff;
+  --panel-border: #d0d5e2;
+  --text-main: #1a1d2b;
+  --text-muted: #4b5168;
+  --accent: #1f4fb8;
+  --accent-soft: #e5ecfb;
+  --gap: 1rem;
+
+  width: 100%;
+  max-width: 640px;
+  margin-inline: auto;
+  padding: var(--gap);
+  display: grid;
+  gap: var(--gap);
+  color: var(--text-main);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+}
+
+.drum h2,
+.drum h3 {
+  margin: 0;
+}
+
+.pads {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.75rem;
+}
+
+.pad {
+  width: 100%;
+  min-height: 4.5rem;
+  padding: 0.5rem;
+  display: grid;
+  place-items: center;
+  gap: 0.25rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 2px solid var(--accent);
+  border-radius: 12px;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: transform 60ms ease-out;
+}
+
+/* Pressed is shown by fill, a thicker inset ring and a shift, not by
+   colour alone. */
+.pad[aria-pressed='true'] {
+  color: #ffffff;
+  background: var(--accent);
+  box-shadow: inset 0 0 0 3px #ffffff;
+  transform: translateY(2px) scale(0.97);
+}
+
+.pad:focus-visible,
+.drum :focus-visible {
+  outline: 3px solid var(--text-main);
+  outline-offset: 3px;
+}
+
+.key {
+  min-width: 2rem;
+  padding: 0.125rem 0.5rem;
+  font: inherit;
+  font-size: 1.125rem;
+  text-align: center;
+  color: var(--text-main);
+  background: #ffffff;
+  border: 1px solid var(--text-muted);
+  border-bottom-width: 3px;
+  border-radius: 6px;
+}
+
+.meterRow {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-muted);
+}
+
+.meter {
+  width: 100%;
+  height: 1.25rem;
+}
+
+.hitLog {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.hits {
+  display: block;
+  min-height: calc(6 * 1.5em); /* room for MAX_HITS lines: no layout shift */
+  color: var(--text-muted);
+}
+
+.hit {
+  display: block;
+}
+
+.hit:first-child {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pad {
+    transition: none;
+  }
+}
