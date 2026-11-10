@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { PianoKey } from './PianoKey.jsx';
 import { PolyphonicSynth } from './PolyphonicSynth.js';
 import { midiToFrequency, PIANO_KEYS } from './piano-keys.js';
@@ -7,15 +7,28 @@ import {
   recordNoteOff,
   recordNoteOn,
 } from './recorder.js';
+import { replaySequence } from './replay.js';
+
+const SPEEDS = [0.5, 1, 2];
 
 export function GrandPiano88() {
   const [synth] = useState(() => new PolyphonicSynth());
   const [pressed, setPressed] = useState(() => new Set());
   const [recording, setRecording] = useState(false);
   const [sequence, setSequence] = useState([]);
+  // IDLE | PLAYING | STOPPED | FINISHED
+  const [replay, setReplay] = useState('IDLE');
+  const [speed, setSpeed] = useState(1);
   const recordingRef = useRef(false);
+  const replayRef = useRef(null);
+  const speedId = useId();
 
-  useEffect(() => () => synth.close(), [synth]);
+  useEffect(() => {
+    return () => {
+      replayRef.current?.abort(); // cancel pending playback timers
+      synth.close();
+    };
+  }, [synth]);
 
   // Switching window or app while holding keys must not leave notes ringing.
   useEffect(() => {
@@ -78,6 +91,30 @@ export function GrandPiano88() {
     setSequence((prev) => finishRecording(prev, nowMs));
   };
 
+  const playSequence = async () => {
+    const controller = new AbortController();
+    replayRef.current = controller;
+    setReplay('PLAYING');
+    try {
+      await replaySequence(sequence, {
+        speed,
+        noteOn: handleNoteOn,
+        noteOff: handleNoteOff,
+        signal: controller.signal,
+      });
+      setReplay('FINISHED');
+    } catch (error) {
+      if (error.name !== 'AbortError') throw error;
+    } finally {
+      if (replayRef.current === controller) replayRef.current = null;
+    }
+  };
+
+  const stopSequence = () => {
+    replayRef.current?.abort();
+    setReplay('STOPPED');
+  };
+
   return (
     <section aria-labelledby='piano-heading'>
       <h2 id='piano-heading'>88-Key Polyphonic Piano</h2>
@@ -93,6 +130,32 @@ export function GrandPiano88() {
           {recording ? 'Recording: ' : 'Recorded: '}
           {sequence.length} {sequence.length === 1 ? 'note' : 'notes'}
         </output>
+        <label htmlFor={speedId}>Replay speed</label>
+        <select
+          id={speedId}
+          value={speed}
+          disabled={replay === 'PLAYING'}
+          onChange={(e) => setSpeed(Number(e.target.value))}
+        >
+          {SPEEDS.map((value) => (
+            <option key={value} value={value}>{value}x</option>
+          ))}
+        </select>
+        <button
+          type='button'
+          disabled={recording || replay === 'PLAYING' || sequence.length === 0}
+          onClick={playSequence}
+        >
+          Play sequence
+        </button>
+        <button
+          type='button'
+          disabled={replay !== 'PLAYING'}
+          onClick={stopSequence}
+        >
+          Stop Sequence
+        </button>
+        <output aria-live='polite'>Replay: {replay.toLowerCase()}</output>
       </section>
       <ol aria-label='Piano keys, A0 to C8'>
         {PIANO_KEYS.map((key) => (
