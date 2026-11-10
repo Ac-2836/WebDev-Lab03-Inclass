@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import styles from './GrandPiano88.module.css';
 
 // Slide contract. Re-renders only when its own props change; the parent
 // passes referentially stable onNoteOn / onNoteOff.
@@ -28,7 +29,7 @@ export const PianoKey = memo(function PianoKey({
   return (
     <button
       type='button'
-      className={`key ${isBlack ? 'key--black' : 'key--white'}`}
+      className={`${styles.key} ${isBlack ? styles.black : styles.white}`}
       aria-pressed={isPressed}
       onPointerDown={(e) => e.button === 0 && onNoteOn(midi)}
       onPointerUp={release}

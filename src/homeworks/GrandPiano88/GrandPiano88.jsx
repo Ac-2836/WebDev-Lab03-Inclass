@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import styles from './GrandPiano88.module.css';
 import { PianoKey } from './PianoKey.jsx';
 import { PolyphonicSynth } from './PolyphonicSynth.js';
 import { midiToFrequency, PIANO_KEYS } from './piano-keys.js';
@@ -116,9 +117,12 @@ export function GrandPiano88() {
   };
 
   return (
-    <section aria-labelledby='piano-heading'>
+    <section className={styles.piano} aria-labelledby='piano-heading'>
       <h2 id='piano-heading'>88-Key Polyphonic Piano</h2>
-      <section aria-labelledby='sequencer-heading'>
+      <section
+        className={styles.sequencer}
+        aria-labelledby='sequencer-heading'
+      >
         <h3 id='sequencer-heading'>Sequencer</h3>
         <button
           type='button'
@@ -157,20 +161,29 @@ export function GrandPiano88() {
         </button>
         <output aria-live='polite'>Replay: {replay.toLowerCase()}</output>
       </section>
-      <ol aria-label='Piano keys, A0 to C8'>
-        {PIANO_KEYS.map((key) => (
-          <li key={key.midi}>
-            <PianoKey
-              midi={key.midi}
-              noteName={key.noteName}
-              isBlack={key.isBlack}
-              isPressed={pressed.has(key.midi)}
-              onNoteOn={handleNoteOn}
-              onNoteOff={handleNoteOff}
-            />
-          </li>
-        ))}
-      </ol>
+      <section
+        className={styles.scroller}
+        aria-label='Piano keyboard, scrolls sideways'
+        tabIndex={0}
+      >
+        <ol className={styles.strip} aria-label='Piano keys, A0 to C8'>
+          {PIANO_KEYS.map((key) => (
+            <li
+              key={key.midi}
+              className={key.isBlack ? styles.blackSlot : styles.whiteSlot}
+            >
+              <PianoKey
+                midi={key.midi}
+                noteName={key.noteName}
+                isBlack={key.isBlack}
+                isPressed={pressed.has(key.midi)}
+                onNoteOn={handleNoteOn}
+                onNoteOff={handleNoteOff}
+              />
+            </li>
+          ))}
+        </ol>
+      </section>
     </section>
   );
 }
