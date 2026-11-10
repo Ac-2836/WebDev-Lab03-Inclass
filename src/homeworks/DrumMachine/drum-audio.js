@@ -1,3 +1,4 @@
+export const MIN_DB = -60;
 const FLOOR = 0.0001;
 const OUTPUT_GAIN = 1.4; // makeup gain after the limiter
 
@@ -102,6 +103,7 @@ export function playVoice(ctx, dest, padId) {
 
 // Every voice feeds a limiter (fast, hard compressor) so a chord of pads
 // cannot sum past full scale; OUTPUT_GAIN is measured to keep peaks < 1.
+// An analyser taps the final signal for the level meter.
 export function createMasterBus(ctx) {
   const limiter = ctx.createDynamicsCompressor();
   limiter.threshold.value = -18;
@@ -111,28 +113,39 @@ export function createMasterBus(ctx) {
   limiter.release.value = 0.12;
   const output = ctx.createGain();
   output.gain.value = OUTPUT_GAIN;
-  limiter.connect(output).connect(ctx.destination);
-  return limiter;
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 1024;
+  limiter.connect(output).connect(analyser).connect(ctx.destination);
+  return { input: limiter, analyser };
 }
 
 // The AudioContext is created on the first hit (a user gesture, as browser
 // autoplay policy requires) and closed by close() on unmount.
 export function createDrumAudio() {
   let ctx = null;
-  let master = null;
+  let bus = null;
+  const samples = new Float32Array(1024);
   return {
     play(padId) {
       if (!ctx) {
         ctx = new window.AudioContext();
-        master = createMasterBus(ctx);
+        bus = createMasterBus(ctx);
       }
       if (ctx.state === 'suspended') ctx.resume();
-      playVoice(ctx, master, padId);
+      playVoice(ctx, bus.input, padId);
+    },
+    // Peak of the latest block in dBFS, clamped to [MIN_DB, 0].
+    getLevelDb() {
+      if (!bus) return MIN_DB;
+      bus.analyser.getFloatTimeDomainData(samples);
+      const peak = samples.reduce((max, v) => Math.max(max, Math.abs(v)), 0);
+      if (peak === 0) return MIN_DB;
+      return Math.max(MIN_DB, Math.min(0, 20 * Math.log10(peak)));
     },
     close() {
       ctx?.close();
       ctx = null;
-      master = null;
+      bus = null;
     },
   };
 }
