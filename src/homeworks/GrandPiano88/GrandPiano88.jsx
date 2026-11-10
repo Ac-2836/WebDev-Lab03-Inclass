@@ -9,6 +9,16 @@ export function GrandPiano88() {
 
   useEffect(() => () => synth.close(), [synth]);
 
+  // Switching window or app while holding keys must not leave notes ringing.
+  useEffect(() => {
+    const releaseAll = () => {
+      synth.allNotesOff();
+      setPressed((prev) => (prev.size === 0 ? prev : new Set()));
+    };
+    window.addEventListener('blur', releaseAll);
+    return () => window.removeEventListener('blur', releaseAll);
+  }, [synth]);
+
   // Stable callbacks: PianoKey is memoized, so these must not change.
   const handleNoteOn = useCallback(
     (midi) => {
