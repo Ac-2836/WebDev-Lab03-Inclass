@@ -1,14 +1,17 @@
 # AI Failure Audit
 
-This report records failures observed while implementing and verifying the
-Lab 03 In-class sprints. Each entry is logged before the AI is asked to fix
+This report records failures observed while implementing and verifying
+Lab 03 (In-class sprints and Homework 1-3). Entries 01-03 belong to the
+In-class sprints; homework entries continue the same numbering and name the
+homework in the title. Each entry is logged before the AI is asked to fix
 the subtask. Screenshots listed as verification evidence show the corrected
 UI; they are not presented as screenshots of the original failure.
 
 <!--
-Copy this template for each failure (number entries 01, 02, 03, ...):
+Copy this template for each failure (number entries 01, 02, 03, ...;
+homework entries add the part, e.g. "AI Failure 04 (HW 1): ..."):
 
-## AI Failure NN: <short title>
+## AI Failure NN (<part>): <short title>
 
 - **AI Prompt:** <the prompt / subtask given to the AI>
 - **AI Generated Code:** <what the AI produced and why it is wrong>
