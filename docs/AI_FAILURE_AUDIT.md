@@ -145,3 +145,35 @@ homework entries add the part, e.g. "AI Failure 04 (HW 1): ..."):
   and `defaultPrevented` is false; Select All still selects the page text;
   plain `A` still hits Kick and `Shift+W` still hits Crash; `npm run build`
   passes. `evidence/h1.3-verify.json`.
+
+## AI Failure 05 (HW 1): chords of pads clip the audio output
+
+- **AI Prompt:** Task H1.4 Synth drum voices: Web Audio synthesized voices,
+  no sample files; `AudioContext` after a user gesture; closed on unmount.
+- **AI Generated Code:** `drum-audio.js` sums every voice into one fixed
+  master `GainNode` (`MASTER_LEVEL = 0.6`) wired straight to
+  `ctx.destination`. Each voice peaks near 1.0 on its own (kick 0.96, snare
+  1.09), so the fixed gain only protects a single hit; simultaneous pads add
+  up with nothing limiting the sum.
+- **Risk:** Hard clipping at the destination: kick + snare, the most common
+  drum combination, and any chord of pads play distorted. The slide asks for
+  polyphony without clipping in the same spirit as HW 2 (8 voices).
+- **Detection Method / DevTools Proof:** Found while verifying task H1.4.
+  Real `playVoice()` voices rendered offline in Chrome through the 0.6
+  master gain and the samples above 1.0 counted: snare alone peak 0.724 (0
+  over); kick + snare peak 1.253 (7 samples over); kick + snare + tom + crash
+  1.789 (98 over); all seven pads 2.235 (109 over). Evidence:
+  `evidence/h1.4-chord-clipping-before-fix.json` (measured data, not a
+  DevTools panel screenshot).
+- **Engineering Refactor / Manual Fix:** Replaced the fixed master gain
+  with `createMasterBus(ctx)` in `drum-audio.js`: all voices feed a
+  `DynamicsCompressorNode` used as a limiter (threshold -18 dB, knee 0,
+  ratio 20, attack 1 ms, release 0.12 s) followed by an output gain of 1.4
+  chosen from the offline measurements. `createDrumAudio()` and the tests use
+  the same function. Shipped in the task H1.4 commit.
+- **Verification Evidence:** The same offline renders through
+  `createMasterBus`: snare alone 0.59, kick alone 0.483, kick + snare 0.75,
+  kick + snare + tom + crash 0.904, all seven pads 0.894, with 0 samples over
+  1.0 in every case. On a fresh page the first gesture creates one running
+  `AudioContext`, all 12 sources end and are disconnected, and leaving the tab
+  closes the context. `evidence/h1.4-verify.json`.
