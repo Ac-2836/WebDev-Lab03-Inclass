@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createDrumAudio } from './drum-audio.js';
 import { PAD_MAP } from './drum-pads.js';
 import { useDrumKeyboard } from './useDrumKeyboard.js';
 
@@ -7,15 +8,20 @@ const FLASH_MS = 150;
 
 export function DrumMachine() {
   const [activeIds, setActiveIds] = useState(() => new Set());
+  const [audio] = useState(createDrumAudio);
   const timersRef = useRef(new Map());
 
   useEffect(() => {
     const timers = timersRef.current;
-    return () => timers.forEach((timerId) => window.clearTimeout(timerId));
-  }, []);
+    return () => {
+      timers.forEach((timerId) => window.clearTimeout(timerId));
+      audio.close();
+    };
+  }, [audio]);
 
   // A pad stays "pressed" for FLASH_MS after each hit (chords can overlap).
   const triggerPad = (padId) => {
+    audio.play(padId);
     window.clearTimeout(timersRef.current.get(padId));
     setActiveIds((prev) => new Set(prev).add(padId));
     timersRef.current.set(
