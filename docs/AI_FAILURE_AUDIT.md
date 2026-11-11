@@ -243,3 +243,38 @@ homework entries add the part, e.g. "AI Failure 04 (HW 1): ..."):
   `end` above `total`, or `start` above `end`. In the page the virtual list
   keeps 12 to 16 of 5000 rows in the DOM, `aria-posinset` runs 1 to 5000, and
   jumping to 8 scroll offsets never left blank space.
+
+## AI Failure 08 (HW 3): focus is lost when a claimed crate sells out
+
+- **AI Prompt:** Task H3.5 Optimistic claim and rollback: in-flight lock,
+  optimistic stock deduction, rollback on 409, results in `role="status"` /
+  `role="alert"`.
+- **AI Generated Code:** `CrateDropCard.jsx` sets `disabled={phase !==
+  'AIRDROP_LIVE'}` on the claim button. When a claim ends with the stock at 0
+  (the last crate was claimed, or the server answers 409 Looted Out), the phase
+  changes to `LOOTED_OUT` and the button the user is focused on becomes
+  `disabled`. The browser cannot keep focus on a disabled control.
+- **Risk:** A keyboard or screen-reader user who pressed Enter on "Claim
+  crate" is dropped to `<body>` as soon as the answer arrives and has to Tab
+  from the top of the page again, right when the result is announced (WCAG
+  2.4.3 Focus Order). The same card also becomes unreachable by Tab.
+- **Detection Method / DevTools Proof:** Found while re-auditing the claim
+  flow for task H3.9. Playwright on Chrome (fake clock): focus the live
+  crate's button, press Enter, advance 1000 ms with the server answering 409:
+  `document.activeElement` is `BODY` (it was `BUTTON: Claiming...` during the
+  claim) and the button is `disabled`. Claiming the last crate of the 2-stock
+  drop with two Enter presses gives the same result (`active: BODY`). Evidence:
+  those readings (measured, not a DevTools panel screenshot).
+- **Engineering Refactor / Manual Fix:** The claim button no longer uses
+  `disabled`: it carries `aria-disabled` when the drop is not live or a claim
+  is in flight, and `onClick` does nothing unless the phase is
+  `AIRDROP_LIVE` (the in-flight lock stays in the parent). The style for
+  `[aria-disabled='true']` replaces the `:disabled` style (dashed, muted).
+- **Verification Evidence:** Same keyboard run after the fix: after Enter
+  and the 409 answer `document.activeElement` is still the claim button
+  (`BUTTON: Claim crate`, `aria-disabled="true"`, phase "Looted out"); pressing
+  Enter and Space again changes neither the stock (0) nor the notice or alert;
+  clicking the warm-up card's button leaves its stock at 3 and the notice
+  empty. Claiming the last crate of the 2-stock drop with two Enter presses
+  also leaves focus on the button. Lighthouse Accessibility stays 100.
+  `evidence/h3.9-focus-kept-on-sold-out-1440px.png`.
