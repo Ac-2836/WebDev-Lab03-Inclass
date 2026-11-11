@@ -1,8 +1,10 @@
+// A 409 carries the stock the server has now, like a conflict response body.
 export class ClaimError extends Error {
-  constructor(status, message) {
+  constructor(status, message, remainingStock = null) {
     super(message);
     this.name = 'ClaimError';
     this.status = status;
+    this.remainingStock = remainingStock;
   }
 }
 
@@ -56,7 +58,7 @@ export function createClaimServer({
     }
     if (stock.get(dropId) <= 0 || random() < lootedOutRate) {
       stock.set(dropId, 0);
-      return { error: new ClaimError(409, 'Looted Out') };
+      return { error: new ClaimError(409, 'Looted Out', 0) };
     }
     stock.set(dropId, stock.get(dropId) - 1);
     return { remainingStock: stock.get(dropId) };
