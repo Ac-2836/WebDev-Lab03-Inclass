@@ -177,3 +177,37 @@ homework entries add the part, e.g. "AI Failure 04 (HW 1): ..."):
   1.0 in every case. On a fresh page the first gesture creates one running
   `AudioContext`, all 12 sources end and are disconnected, and leaving the tab
   closes the context. `evidence/h1.4-verify.json`.
+
+## AI Failure 06 (HW 3): countdown hook re-renders cards 35 times a second
+
+- **AI Prompt:** Task H3.2 Anti-drift airdrop timer: slide contract
+  `usePubgAirdropTimer(targetEpochMs, serverOffsetMs = 0)` returning
+  `{ remainingMs, isLive }`; 200 ms tick + `visibilitychange` resync; cleanup.
+- **AI Generated Code:** `usePubgAirdropTimer.js` calls
+  `setRemainingMs(remainingMsAt(...))` on every 200 ms tick. The value
+  changes every tick, so every tick commits a render, although the countdown
+  is shown in whole seconds (`mm:ss`). `CrateDropCard` (H3.3) uses two of
+  these hooks (drop time and expiry time), so each card has two timers.
+- **Risk:** With 4 cards (8 timers) the arena renders about 35 commits per
+  second while nothing changes on screen, 5 to 8 times more than needed,
+  wasting CPU and battery on the page users keep open for hours waiting for
+  a drop.
+- **Detection Method / DevTools Proof:** Found while verifying task H3.6
+  (a per-keystroke commit count read 1, 3, 4 instead of 1). Playwright on
+  Chrome with a React commit hook, HW 3 tab idle for 3 s: 105 commits and 91
+  `CrateDropCard` renders, while the four visible countdowns changed only
+  once per second (about 12 text changes in total). Evidence: counts above
+  (measured, not a DevTools panel screenshot).
+- **Engineering Refactor / Manual Fix:** In `usePubgAirdropTimer.js` the
+  tick now calls `setRemainingMs((prev) => ...)` and returns `prev` when
+  `Math.ceil(prev / 1000) === Math.ceil(next / 1000)`, so React bails out of
+  the render unless the displayed second changes (or the countdown reaches
+  zero). The hook signature and the wall-clock calculation are unchanged;
+  `remainingMs` is now refreshed once per displayed second.
+- **Verification Evidence:** Same measurement, HW 3 tab idle for 3 s: 30
+  commits and 18 `CrateDropCard` renders (was 105 and 91). A keystroke in the
+  leaderboard filter is exactly 1 commit each (was 1, 3, 4). With the fake
+  clock paused at a fixed time and advanced in 100 ms steps, the first card
+  shows 00:20, 00:19, ..., 00:01 (20 values, each exactly 1 s apart) and then
+  changes to "Airdrop live" with the 05:00 claim window; a 60 s throttled jump
+  and a `visibilitychange` still show the exact remaining time.
