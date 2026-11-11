@@ -57,3 +57,34 @@ DevTools Profiler uses):
 | Click-free envelope | largest sample step during attack and release 0.0063, equal to steady state |
 | Output peak with 8 voices | 0.752 (limit 0.8 by construction) |
 | Horizontal scroll | none at 375 px and 320 px; the key strip scrolls inside its labelled region |
+
+## Homework 3: KRAFTON x PUBG Vietnam Championship & Airdrop Arena
+
+Lighthouse (snapshot mode on the HW 3 tab of the production build, Chrome
+headless, 3 runs per form factor; run before the aria-disabled fix of AI
+Failure 08, which changes no markup Lighthouse scores):
+
+| Form factor | Run 1 | Run 2 | Run 3 | Failed audits |
+|---|---|---|---|---|
+| Mobile (375 px) | 100 | 100 | 100 | none |
+| Desktop (1350 px) | 100 | 100 | 100 | none |
+
+Measured checks (Playwright on Chrome; the fake clock is paused and advanced
+by hand so time-based results are exact):
+
+| Check | Result |
+|---|---|
+| Countdown | 20 values from 00:20 to 00:01, each exactly 1 s apart, then "Airdrop live" with a 05:00 claim window |
+| Background tab | a 60 s throttled jump shows the exact remaining time; `visibilitychange` resyncs at once; interval and listener removed on leaving the tab |
+| Phases | WARMUP, AIRDROP_LIVE, LOOTED_OUT (stock 0) and EXPIRED (5 minutes after the drop) derived from clock and stock; phase label changes once per transition |
+| Idle render rate | 30 commits and 18 card renders in 3 s (105 and 91 before AI Failure 06) |
+| Optimistic claim | stock 25 shows 24 immediately, button reads "Claiming...", focus stays on it, server answer replaces the number |
+| Duplicate clicks | 6 synchronous clicks make 1 claim (stock 25 to 24, not 19) |
+| 409 Looted Out | stock 25, 24 (optimistic), then 0; `role="alert"` explains the rollback; phase "Looted out" |
+| Mock server | 20 parallel claims on stock 5 give 5 successes and 15 conflicts, never oversold; repeated `claimId` replays the first answer; abort leaves the stock untouched |
+| Leaderboard | filter and sort by WWCD, placement, kills, total derived in render (0 `useEffect`); rank does not change when filtering; 1 commit per keystroke |
+| Kill feed | 12 to 16 of 5000 rows in the DOM, scroll height 200000 px, `aria-posinset` 1 to 5000, End key reaches row 5000, no blank space after 8 scroll jumps |
+| Prices | `Intl.NumberFormat('vi-VN')`: 1.500.000 ₫, 450.000 ₫, 99.000 ₫ |
+| Contrast | 6.18:1 to 16.74:1 for text, 9.49:1 for the error alert (threshold 4.5:1) |
+| Horizontal scroll | none at 375 px and 320 px; the standings table and the kill feed scroll inside their labelled regions |
+| Inline style attributes | 1, on the kill feed scroller, which carries the four CSS custom properties that depend on the scroll position; none elsewhere |
