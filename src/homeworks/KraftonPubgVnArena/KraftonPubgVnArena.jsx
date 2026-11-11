@@ -5,6 +5,7 @@ import { CrateDropCard } from './CrateDropCard.jsx';
 import { generateKillFeed } from './kill-feed.js';
 import { KillFeed } from './KillFeed.jsx';
 import { Leaderboard } from './Leaderboard.jsx';
+import styles from './KraftonPubgVnArena.module.css';
 
 export function KraftonPubgVnArena() {
   const [drops] = useState(() => createArenaDrops());
@@ -70,11 +71,13 @@ export function KraftonPubgVnArena() {
   };
 
   return (
-    <section aria-labelledby='arena-heading'>
+    <section className={styles.arena} aria-labelledby='arena-heading'>
       <h2 id='arena-heading'>KRAFTON x PUBG Vietnam Arena</h2>
-      <output>{notice}</output>
-      {failure && <p role='alert'>{failure}</p>}
-      <ul aria-label='Crate drops'>
+      <output className={styles.notice}>{notice}</output>
+      {failure && (
+        <p className={styles.failure} role='alert'>{failure}</p>
+      )}
+      <ul className={styles.drops} aria-label='Crate drops'>
         {drops.map((drop) => (
           <li key={drop.id}>
             <CrateDropCard

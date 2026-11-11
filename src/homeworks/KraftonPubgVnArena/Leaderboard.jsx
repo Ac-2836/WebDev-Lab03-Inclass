@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import styles from './KraftonPubgVnArena.module.css';
 import { rankStandings, SORT_OPTIONS, totalPoints } from './leaderboard.js';
 
 export function Leaderboard({ standings }) {
@@ -11,9 +12,16 @@ export function Leaderboard({ standings }) {
   const rows = rankStandings(standings, { query, sortBy });
 
   return (
-    <section aria-labelledby='leaderboard-heading'>
+    <section
+      className={styles.leaderboard}
+      aria-labelledby='leaderboard-heading'
+    >
       <h3 id='leaderboard-heading'>PVS Leaderboard</h3>
-      <form role='search' onSubmit={(e) => e.preventDefault()}>
+      <form
+        className={styles.controls}
+        role='search'
+        onSubmit={(e) => e.preventDefault()}
+      >
         <label htmlFor={queryId}>Squad name</label>
         <input
           id={queryId}
@@ -37,37 +45,43 @@ export function Leaderboard({ standings }) {
       <output>
         Showing {rows.length} of {standings.length} squads
       </output>
-      <table>
-        <caption>Squad standings</caption>
-        <thead>
-          <tr>
-            <th scope='col'>Rank</th>
-            <th scope='col'>Squad</th>
-            <th scope='col'>WWCD</th>
-            <th scope='col'>Placement</th>
-            <th scope='col'>Kills</th>
-            <th scope='col'>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length === 0 ? (
+      <section
+        className={styles.tableScroll}
+        aria-label='Squad standings table, scrolls sideways on small screens'
+        tabIndex={0}
+      >
+        <table className={styles.table}>
+          <caption>Squad standings</caption>
+          <thead>
             <tr>
-              <td colSpan={6}>No squads match.</td>
+              <th scope='col'>Rank</th>
+              <th scope='col'>Squad</th>
+              <th scope='col'>WWCD</th>
+              <th scope='col'>Placement</th>
+              <th scope='col'>Kills</th>
+              <th scope='col'>Total</th>
             </tr>
-          ) : (
-            rows.map((row) => (
-              <tr key={row.squadId}>
-                <td>{row.rank}</td>
-                <th scope='row'>{row.squadName}</th>
-                <td>{row.wwcdCount}</td>
-                <td>{row.placementPts}</td>
-                <td>{row.killPts}</td>
-                <td>{totalPoints(row)}</td>
+          </thead>
+          <tbody>
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={6}>No squads match.</td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              rows.map((row) => (
+                <tr key={row.squadId}>
+                  <td>{row.rank}</td>
+                  <th scope='row'>{row.squadName}</th>
+                  <td>{row.wwcdCount}</td>
+                  <td>{row.placementPts}</td>
+                  <td>{row.killPts}</td>
+                  <td>{totalPoints(row)}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </section>
     </section>
   );
 }

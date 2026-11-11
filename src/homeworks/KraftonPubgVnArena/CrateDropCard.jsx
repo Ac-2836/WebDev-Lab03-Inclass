@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import styles from './KraftonPubgVnArena.module.css';
 import { DROP_WINDOW_MS, getDropPhase, PHASE_LABEL } from './drop-phase.js';
 import { formatCountdown, formatVnd } from './format.js';
 import { usePubgAirdropTimer } from './usePubgAirdropTimer.js';
@@ -14,9 +15,9 @@ export function CrateDropCard({ drop, stock, isClaiming, onClaim }) {
   });
 
   return (
-    <article aria-labelledby={headingId}>
+    <article className={styles.card} aria-labelledby={headingId}>
       <h3 id={headingId}>{drop.title}</h3>
-      <dl>
+      <dl className={styles.facts}>
         <dt>Price</dt>
         <dd>{formatVnd(drop.priceVnd)}</dd>
         <dt>Stock</dt>
@@ -36,11 +37,12 @@ export function CrateDropCard({ drop, stock, isClaiming, onClaim }) {
       </dl>
       {/* Only the phase label is live: it changes on phase changes, not on
           every countdown tick. */}
-      <output>{PHASE_LABEL[phase]}</output>
+      <output className={styles.phase}>{PHASE_LABEL[phase]}</output>
       {/* aria-disabled (not disabled) while claiming keeps keyboard focus on
           the button; the click handler is guarded by the in-flight lock. */}
       <button
         type='button'
+        className={styles.claim}
         disabled={phase !== 'AIRDROP_LIVE'}
         aria-disabled={isClaiming}
         onClick={() => onClaim(drop)}
