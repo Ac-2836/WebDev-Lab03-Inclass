@@ -4,6 +4,9 @@ import { ScientistDirectory } from './components/ScientistDirectory.jsx';
 import { PubgMatchTelemetry } from './components/PubgMatchTelemetry.jsx';
 import { DrumMachine } from './homeworks/DrumMachine/DrumMachine.jsx';
 import { GrandPiano88 } from './homeworks/GrandPiano88/GrandPiano88.jsx';
+import {
+  KraftonPubgVnArena,
+} from './homeworks/KraftonPubgVnArena/KraftonPubgVnArena.jsx';
 import styles from './App.module.css';
 
 const MY_AVATAR_URL =
@@ -41,6 +44,11 @@ const TABS = [
     id: 'hw2',
     label: 'HW 2 · Grand Piano',
     render: () => <GrandPiano88 />,
+  },
+  {
+    id: 'hw3',
+    label: 'HW 3 · PUBG VN Arena',
+    render: () => <KraftonPubgVnArena />,
   },
 ];
 
