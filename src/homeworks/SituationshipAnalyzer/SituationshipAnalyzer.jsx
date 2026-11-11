@@ -14,6 +14,7 @@ import {
   PHASE_LABEL,
   situationReducer,
 } from './situationship-machine.js';
+import styles from './SituationshipAnalyzer.module.css';
 
 export function SituationshipAnalyzer() {
   const [{ phase, awaitingReplyId }, dispatch] = useReducer(
@@ -50,10 +51,10 @@ export function SituationshipAnalyzer() {
   };
 
   return (
-    <article aria-labelledby='situationship-heading'>
+    <article className={styles.panel} aria-labelledby='situationship-heading'>
       <h2 id='situationship-heading'>Hẹn Hò Nhưng Không Yêu Analyzer</h2>
-      <output>{PHASE_LABEL[phase]}</output>
-      <ul aria-label='Possible moves'>
+      <output className={styles.phase}>{PHASE_LABEL[phase]}</output>
+      <ul className={styles.moves} aria-label='Possible moves'>
         {availableEvents(phase).map((event) => (
           <li key={event}>
             <button type='button' onClick={() => dispatch({ type: event })}>
@@ -73,17 +74,18 @@ export function SituationshipAnalyzer() {
           </li>
         )}
       </ul>
-      <output>
+      <output className={styles.waiting}>
         {awaitingReplyId === null
           ? ''
           : `Waiting for a reply (${REPLY_WINDOW_MS / 1000} s)...`}
       </output>
-      <section aria-labelledby='redflag-heading'>
+      <section className={styles.redFlag} aria-labelledby='redflag-heading'>
         <h3 id='redflag-heading'>Red-flag meter</h3>
-        <p>
-          <label htmlFor={meterId}>Em&apos;s share of the effort</label>{' '}
+        <p className={styles.meterRow}>
+          <label htmlFor={meterId}>Em&apos;s share of the effort</label>
           <meter
             id={meterId}
+            className={styles.meter}
             min={0}
             max={1}
             low={0.5}
@@ -91,13 +93,18 @@ export function SituationshipAnalyzer() {
             value={emShare}
           />
         </p>
-        <dl>
+        <dl className={styles.scores}>
           <dt>Em</dt>
           <dd>{emScore}</dd>
           <dt>Ai đó</dt>
           <dd>{rivalScore}</dd>
         </dl>
-        <output role='status' aria-live='polite'>
+        <output
+          className={styles.verdict}
+          data-red-flag={isRedFlag}
+          role='status'
+          aria-live='polite'
+        >
           {isRedFlag
             ? 'Red flag: em cố trăm lần không bằng ai đó một phần '
               + `(Em ${emScore} < Ai đó ${rivalScore}).`
@@ -138,7 +145,7 @@ function EffortLog({ signals, onAdd }) {
   return (
     <section aria-labelledby='effort-heading'>
       <h3 id='effort-heading'>Effort log</h3>
-      <form onSubmit={handleSubmit}>
+      <form className={styles.form} onSubmit={handleSubmit}>
         <label htmlFor={actorId}>Who</label>
         <select
           id={actorId}
@@ -170,8 +177,8 @@ function EffortLog({ signals, onAdd }) {
         />
         <button type='submit'>Log signal</button>
       </form>
-      {problem && <p role='alert'>{problem}</p>}
-      <ol aria-label='Effort signals'>
+      {problem && <p className={styles.alert} role='alert'>{problem}</p>}
+      <ol className={styles.log} aria-label='Effort signals'>
         {signals.map((signal) => (
           <li key={signal.id}>
             {ACTOR_LABEL[signal.actor]}: {signal.steps} x {signal.multiplier}

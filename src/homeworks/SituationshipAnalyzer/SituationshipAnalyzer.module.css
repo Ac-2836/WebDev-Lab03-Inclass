@@ -1,0 +1,157 @@
+.panel {
+  --panel-bg: #ffffff;
+  --panel-border: #d0d5e2;
+  --text-main: #1a1d2b;
+  --text-muted: #4b5168;
+  --accent: #1f4fb8;
+  --accent-soft: #e5ecfb;
+  --danger: #7a1414;
+  --danger-soft: #fdecec;
+  --gap: 1rem;
+
+  width: 100%;
+  max-width: 640px;
+  margin-inline: auto;
+  padding: var(--gap);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--gap);
+  color: var(--text-main);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+}
+
+.panel h2,
+.panel h3 {
+  margin: 0;
+}
+
+.panel :focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.panel button,
+.panel input,
+.panel select {
+  min-height: 2.5rem;
+  padding: 0.25rem 0.75rem;
+  font: inherit;
+  color: var(--accent);
+  background: var(--panel-bg);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+}
+
+.panel input,
+.panel select {
+  color: var(--text-main);
+  border-color: var(--text-muted);
+}
+
+.panel button {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.phase {
+  padding: 0.5rem 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 8px;
+}
+
+.waiting {
+  min-height: 1.5em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.moves {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.redFlag {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.meterRow {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.meter {
+  width: 100%;
+  height: 1.25rem;
+}
+
+.scores {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  gap: 0.25rem 0.75rem;
+}
+
+.scores dt {
+  color: var(--text-muted);
+}
+
+.scores dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+/* The verdict is words first; the red box and bold only reinforce them. */
+.verdict {
+  padding: 0.5rem 0.75rem;
+  color: var(--text-muted);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+.verdict[data-red-flag='true'] {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 2px solid var(--danger);
+  font-weight: 700;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.form button {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.alert {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.log {
+  margin: 0;
+  padding-left: 1.5rem;
+  display: grid;
+  gap: 0.25rem;
+}
