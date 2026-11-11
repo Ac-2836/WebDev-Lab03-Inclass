@@ -1,0 +1,23 @@
+/* Kill feed (virtual list): fixed row height, scroll box of fixed height. */
+.feedScroller {
+  height: var(--viewport-height);
+  overflow-y: auto;
+  border: 1px solid #4b5168;
+  border-radius: 8px;
+}
+
+.feedList {
+  margin: 0;
+  padding: var(--rows-before) 0 var(--rows-after);
+  list-style: none;
+}
+
+.feedList li {
+  height: var(--row-height);
+  padding: 0 0.75rem;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

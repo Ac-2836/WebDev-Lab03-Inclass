@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { createArenaDrops, SQUAD_STANDINGS } from './arena-data.js';
 import { createClaimServer } from './claim-server.js';
 import { CrateDropCard } from './CrateDropCard.jsx';
+import { generateKillFeed } from './kill-feed.js';
+import { KillFeed } from './KillFeed.jsx';
 import { Leaderboard } from './Leaderboard.jsx';
 
 export function KraftonPubgVnArena() {
@@ -11,6 +13,8 @@ export function KraftonPubgVnArena() {
   const [server] = useState(() => createClaimServer({
     stockById: Object.fromEntries(drops.map((d) => [d.id, d.remainingStock])),
   }));
+  const [killEvents] = useState(() =>
+    generateKillFeed(5000, SQUAD_STANDINGS.map((s) => s.squadName)));
   const [claimingIds, setClaimingIds] = useState(() => new Set());
   const [notice, setNotice] = useState('');
   const [failure, setFailure] = useState('');
@@ -83,6 +87,7 @@ export function KraftonPubgVnArena() {
         ))}
       </ul>
       <Leaderboard standings={SQUAD_STANDINGS} />
+      <KillFeed events={killEvents} />
     </section>
   );
 }
