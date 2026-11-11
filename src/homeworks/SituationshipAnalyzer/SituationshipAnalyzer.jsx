@@ -1,21 +1,53 @@
-import { useId, useReducer, useState } from 'react';
+import { useEffect, useId, useReducer, useState } from 'react';
 import {
   ACTOR_LABEL,
+  analyzeEffort,
   appendSignal,
   createSignal,
   impactOf,
 } from './effort.js';
+import { REPLY_WINDOW_MS, waitForReply } from './reply-timer.js';
 import {
   availableEvents,
   EVENT_LABEL,
-  INITIAL_PHASE,
+  INITIAL_STATE,
   PHASE_LABEL,
-  phaseReducer,
+  situationReducer,
 } from './situationship-machine.js';
 
 export function SituationshipAnalyzer() {
-  const [phase, dispatch] = useReducer(phaseReducer, INITIAL_PHASE);
+  const [{ phase, awaitingReplyId }, dispatch] = useReducer(
+    situationReducer,
+    INITIAL_STATE,
+  );
   const [signals, setSignals] = useState([]);
+  const meterId = useId();
+  // Derived during render: nothing here is stored or synced by an effect.
+  const { emScore, rivalScore, emShare, isRedFlag } = analyzeEffort(
+    signals,
+    phase,
+  );
+
+  // 'Seen không rep': a sent message starts a wait. No reply within the
+  // window ghosts the relationship. The wait is aborted when the message is
+  // answered, replaced, the phase changes, or the component unmounts.
+  useEffect(() => {
+    if (awaitingReplyId === null) return undefined;
+    const controller = new AbortController();
+    waitForReply(controller.signal).then(
+      () => dispatch({ type: 'GHOSTED' }),
+      (error) => {
+        if (error.name !== 'AbortError') throw error;
+      },
+    );
+    return () => controller.abort();
+  }, [awaitingReplyId]);
+
+  const logSignal = (signal) => {
+    setSignals((prev) => appendSignal(prev, signal));
+    // An 'Ai đó' signal is their answer to the waiting message.
+    if (signal.actor === 'AI_DO') dispatch({ type: 'REPLY' });
+  };
 
   return (
     <article aria-labelledby='situationship-heading'>
@@ -24,16 +56,55 @@ export function SituationshipAnalyzer() {
       <ul aria-label='Possible moves'>
         {availableEvents(phase).map((event) => (
           <li key={event}>
-            <button type='button' onClick={() => dispatch(event)}>
+            <button type='button' onClick={() => dispatch({ type: event })}>
               {EVENT_LABEL[event]}
             </button>
           </li>
         ))}
+        {phase === 'DATING_NO_LOVE' && (
+          <li>
+            <button
+              type='button'
+              onClick={() =>
+                dispatch({ type: 'SEND_MESSAGE', id: crypto.randomUUID() })}
+            >
+              Send message
+            </button>
+          </li>
+        )}
       </ul>
-      <EffortLog
-        signals={signals}
-        onAdd={(signal) => setSignals((prev) => appendSignal(prev, signal))}
-      />
+      <output>
+        {awaitingReplyId === null
+          ? ''
+          : `Waiting for a reply (${REPLY_WINDOW_MS / 1000} s)...`}
+      </output>
+      <section aria-labelledby='redflag-heading'>
+        <h3 id='redflag-heading'>Red-flag meter</h3>
+        <p>
+          <label htmlFor={meterId}>Em&apos;s share of the effort</label>{' '}
+          <meter
+            id={meterId}
+            min={0}
+            max={1}
+            low={0.5}
+            optimum={1}
+            value={emShare}
+          />
+        </p>
+        <dl>
+          <dt>Em</dt>
+          <dd>{emScore}</dd>
+          <dt>Ai đó</dt>
+          <dd>{rivalScore}</dd>
+        </dl>
+        <output role='status' aria-live='polite'>
+          {isRedFlag
+            ? 'Red flag: em cố trăm lần không bằng ai đó một phần '
+              + `(Em ${emScore} < Ai đó ${rivalScore}).`
+            : 'Stable'}
+        </output>
+      </section>
+      <EffortLog signals={signals} onAdd={logSignal} />
     </article>
   );
 }

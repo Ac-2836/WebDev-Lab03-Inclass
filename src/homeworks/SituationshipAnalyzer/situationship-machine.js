@@ -44,3 +44,29 @@ export const availableEvents = (phase) => Object.keys(TRANSITIONS[phase]);
 export function phaseReducer(phase, event) {
   return TRANSITIONS[phase]?.[event] ?? phase;
 }
+
+// The relationship phase plus the one thing that can ghost it: a message
+// still waiting for a reply. Leaving DATING_NO_LOVE drops the waiting message.
+export const INITIAL_STATE = { phase: INITIAL_PHASE, awaitingReplyId: null };
+
+/**
+ * Actions: { type: <phase event> } | { type: 'SEND_MESSAGE', id } |
+ * { type: 'REPLY' }. `id` is made by the caller so this stays pure.
+ */
+export function situationReducer(state, action) {
+  switch (action.type) {
+    case 'SEND_MESSAGE':
+      return state.phase === 'DATING_NO_LOVE'
+        ? { ...state, awaitingReplyId: action.id }
+        : state;
+    case 'REPLY':
+      return state.awaitingReplyId === null
+        ? state
+        : { ...state, awaitingReplyId: null };
+    default: {
+      const phase = phaseReducer(state.phase, action.type);
+      return phase === state.phase ? state : { phase, awaitingReplyId: null };
+    }
+  }
+}
+
