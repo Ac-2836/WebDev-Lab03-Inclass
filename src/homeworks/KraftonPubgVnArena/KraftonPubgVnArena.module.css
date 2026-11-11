@@ -105,16 +105,11 @@
   cursor: pointer;
 }
 
-.claim:disabled {
+.claim[aria-disabled='true'] {
   color: var(--text-muted);
   background: transparent;
-  border-color: var(--text-muted);
+  border: 2px dashed var(--text-muted);
   cursor: not-allowed;
-}
-
-.claim[aria-disabled='true'] {
-  cursor: progress;
-  border-style: dashed;
 }
 
 /* Leaderboard */

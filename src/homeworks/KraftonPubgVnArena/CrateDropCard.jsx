@@ -38,14 +38,14 @@ export function CrateDropCard({ drop, stock, isClaiming, onClaim }) {
       {/* Only the phase label is live: it changes on phase changes, not on
           every countdown tick. */}
       <output className={styles.phase}>{PHASE_LABEL[phase]}</output>
-      {/* aria-disabled (not disabled) while claiming keeps keyboard focus on
-          the button; the click handler is guarded by the in-flight lock. */}
+      {/* aria-disabled, not disabled: a focused button that becomes
+          disabled drops focus to <body>. Clicks are ignored unless the
+          drop is live; the in-flight lock lives in the parent. */}
       <button
         type='button'
         className={styles.claim}
-        disabled={phase !== 'AIRDROP_LIVE'}
-        aria-disabled={isClaiming}
-        onClick={() => onClaim(drop)}
+        aria-disabled={isClaiming || phase !== 'AIRDROP_LIVE'}
+        onClick={() => phase === 'AIRDROP_LIVE' && onClaim(drop)}
       >
         {isClaiming ? 'Claiming...' : 'Claim crate'}
       </button>
