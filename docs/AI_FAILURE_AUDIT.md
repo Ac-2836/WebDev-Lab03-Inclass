@@ -211,3 +211,35 @@ homework entries add the part, e.g. "AI Failure 04 (HW 1): ..."):
   shows 00:20, 00:19, ..., 00:01 (20 values, each exactly 1 s apart) and then
   changes to "Airdrop live" with the 05:00 claim window; a 60 s throttled jump
   and a `visibilitychange` still show the exact remaining time.
+
+## AI Failure 07 (HW 3): virtual window starts past the end of the list
+
+- **AI Prompt:** Task H3.7 Virtual kill feed: windowed list, only visible rows
+  plus overscan in the DOM; labelled scroll region.
+- **AI Generated Code:** `getVisibleWindow` in `kill-feed.js` clamps `end` to
+  `total` but not `start`:
+  `start = Math.max(0, firstVisible - overscan)`. When the scroll offset is
+  larger than the list (`scrollTop` beyond `total * rowHeight`), `start`
+  lands past `total` and `events.slice(start, end)` is empty.
+- **Risk:** A scroll position that is stale for a moment (the list shrinks
+  while the user is scrolled down, or an overscroll/zoom jump) renders an
+  empty feed with a full-height scrollbar until the next scroll event.
+  Latent today: browsers clamp `scrollTop`, so the current UI cannot reach it,
+  but any later filter on the feed would.
+- **Detection Method / DevTools Proof:** Found while verifying task H3.7 with
+  an edge-case check of the pure function in Chrome:
+  `getVisibleWindow({ scrollTop: 999999, viewportHeight: 320, rowHeight: 40,
+  total: 5000 })` returned `{ start: 24995, end: 24995 }` (start greater than
+  total, zero rows). Evidence: that return value (measured, not a DevTools
+  panel screenshot).
+- **Engineering Refactor / Manual Fix:** `getVisibleWindow` now clamps both
+  `firstVisible` and `lastVisible` to `total` before applying the overscan,
+  so `0 <= start <= end <= total` always holds. Shipped in the task H3.7
+  commit.
+- **Verification Evidence:** Same call after the fix returns
+  `{ start: 4996, end: 5000 }` (the last rows); a list that shrinks to 100
+  rows while scrolled to row 3000 returns `{ start: 96, end: 100 }`; a sweep of
+  261 offsets from -100 to 260000 px produced no window with `start` below 0,
+  `end` above `total`, or `start` above `end`. In the page the virtual list
+  keeps 12 to 16 of 5000 rows in the DOM, `aria-posinset` runs 1 to 5000, and
+  jumping to 8 scroll offsets never left blank space.
