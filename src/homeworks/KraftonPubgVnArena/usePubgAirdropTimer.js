@@ -14,8 +14,13 @@ export function usePubgAirdropTimer(targetEpochMs, serverOffsetMs = 0) {
     remainingMsAt(targetEpochMs, serverOffsetMs));
 
   useEffect(() => {
+    // The countdown is shown in whole seconds, so state only changes (and
+    // React only renders) when the displayed second does, or at zero.
     const syncClock = () =>
-      setRemainingMs(remainingMsAt(targetEpochMs, serverOffsetMs));
+      setRemainingMs((prev) => {
+        const next = remainingMsAt(targetEpochMs, serverOffsetMs);
+        return Math.ceil(prev / 1000) === Math.ceil(next / 1000) ? prev : next;
+      });
     syncClock();
     const timerId = window.setInterval(syncClock, TICK_MS);
     // Resync immediately when a background tab becomes visible again.
