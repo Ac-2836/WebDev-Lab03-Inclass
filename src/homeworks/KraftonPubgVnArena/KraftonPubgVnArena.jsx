@@ -1,24 +1,20 @@
 import { useState } from 'react';
-import { createArenaDrops, SQUAD_STANDINGS } from './arena-data.js';
-import { formatCountdown } from './format.js';
-import { usePubgAirdropTimer } from './usePubgAirdropTimer.js';
+import { createArenaDrops } from './arena-data.js';
+import { CrateDropCard } from './CrateDropCard.jsx';
 
 export function KraftonPubgVnArena() {
   const [drops] = useState(() => createArenaDrops());
-  const { remainingMs, isLive } = usePubgAirdropTimer(drops[0].dropEpochMs);
 
   return (
     <section aria-labelledby='arena-heading'>
       <h2 id='arena-heading'>KRAFTON x PUBG Vietnam Arena</h2>
-      <p>
-        {drops.length} crate drops, {SQUAD_STANDINGS.length} squads.
-      </p>
-      <p>
-        {drops[0].title}:{' '}
-        {isLive ? 'airdrop live' : (
-          <time>{formatCountdown(remainingMs)}</time>
-        )}
-      </p>
+      <ul aria-label='Crate drops'>
+        {drops.map((drop) => (
+          <li key={drop.id}>
+            <CrateDropCard drop={drop} stock={drop.remainingStock} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

@@ -5,3 +5,10 @@ export function formatCountdown(remainingMs) {
   const seconds = String(totalSeconds % 60).padStart(2, '0');
   return `${minutes}:${seconds}`;
 }
+
+const VND = new Intl.NumberFormat('vi-VN', {
+  style: 'currency',
+  currency: 'VND',
+});
+
+export const formatVnd = (amount) => VND.format(amount);
