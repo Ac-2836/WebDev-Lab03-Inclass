@@ -7,6 +7,9 @@ import { GrandPiano88 } from './homeworks/GrandPiano88/GrandPiano88.jsx';
 import {
   KraftonPubgVnArena,
 } from './homeworks/KraftonPubgVnArena/KraftonPubgVnArena.jsx';
+import {
+  SituationshipAnalyzer,
+} from './homeworks/SituationshipAnalyzer/SituationshipAnalyzer.jsx';
 import styles from './App.module.css';
 
 const MY_AVATAR_URL =
@@ -49,6 +52,11 @@ const TABS = [
     id: 'hw3',
     label: 'HW 3 · PUBG VN Arena',
     render: () => <KraftonPubgVnArena />,
+  },
+  {
+    id: 'bonus',
+    label: 'Bonus · Situationship',
+    render: () => <SituationshipAnalyzer />,
   },
 ];
 
