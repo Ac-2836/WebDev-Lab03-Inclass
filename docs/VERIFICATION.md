@@ -88,3 +88,29 @@ by hand so time-based results are exact):
 | Contrast | 6.18:1 to 16.74:1 for text, 9.49:1 for the error alert (threshold 4.5:1) |
 | Horizontal scroll | none at 375 px and 320 px; the standings table and the kill feed scroll inside their labelled regions |
 | Inline style attributes | 1, on the kill feed scroller, which carries the four CSS custom properties that depend on the scroll position; none elsewhere |
+
+## Bonus: 'Hẹn Hò Nhưng Không Yêu' State Machine
+
+Lighthouse (snapshot mode on the Bonus tab of the production build, Chrome
+headless, 3 runs per form factor):
+
+| Form factor | Run 1 | Run 2 | Run 3 | Failed audits |
+|---|---|---|---|---|
+| Mobile (375 px) | 100 | 100 | 100 | none |
+| Desktop (1350 px) | 100 | 100 | 100 | none |
+
+Measured checks (Playwright on Chrome; the fake clock is paused and advanced
+by hand so every time-based result is exact):
+
+| Check | Result |
+|---|---|
+| State machine | 7 valid transitions; 17 of 17 invalid phase and event combinations leave the phase unchanged; all 4 phases reachable from FRIENDS; an unknown phase or event is ignored |
+| Boolean soup | no `isDating`, `isLoved` or `hasTitle` flags; the relationship is one `RelationshipPhase` value |
+| Effort log | append-only (`[...prev, signal]`, frozen signals, `crypto.randomUUID()` ids); 7 invalid inputs rejected by `createSignal`; browser validation blocks empty, 0, fractional and negative values and focuses the field |
+| Derived scores | `emScore`, `rivalScore`, share and red flag computed in render (1 `useEffect` in the file, the reply timer only); 3 x 0.1 and 0.3 x 1 compare as equal |
+| Red flag | none with an empty log; Em 10 against Ai đó 50 gives the red flag in `role="status" aria-live="polite"`; Em catching up or `OFFICIAL_LOVE` returns "Stable" |
+| Ghosting timer | not ghosted at 4.9 s, ghosted at 5.1 s; a second message restarts the 5 s window |
+| Reply | an Ai đó signal cancels the wait; an Em signal does not |
+| Timer cleanup | send then no reply: timer fired; Dừng Lại at 2 s, reply at 2 s, replaced by a newer message, and leaving the tab at 1 s: every timer is cleared, none left pending; restarting after Dừng Lại is not hit by the old timer; no console errors |
+| Contrast | 6.18:1 to 16.74:1 for text, 9.49:1 for the red-flag verdict and the error alert (threshold 4.5:1) |
+| Horizontal scroll | none at 375 px and 320 px; controls at least 40 px high |
