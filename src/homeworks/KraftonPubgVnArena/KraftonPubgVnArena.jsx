@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { createArenaDrops } from './arena-data.js';
+import { createArenaDrops, SQUAD_STANDINGS } from './arena-data.js';
 import { createClaimServer } from './claim-server.js';
 import { CrateDropCard } from './CrateDropCard.jsx';
+import { Leaderboard } from './Leaderboard.jsx';
 
 export function KraftonPubgVnArena() {
   const [drops] = useState(() => createArenaDrops());
@@ -81,6 +82,7 @@ export function KraftonPubgVnArena() {
           </li>
         ))}
       </ul>
+      <Leaderboard standings={SQUAD_STANDINGS} />
     </section>
   );
 }
